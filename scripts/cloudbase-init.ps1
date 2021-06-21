@@ -6,10 +6,10 @@ $client.DownloadFile("https://cloudbase.it/downloads/CloudbaseInitSetup_Stable_x
 start-process -FilePath 'c:\Windows\temp\CloudbaseInitSetup_Stable_x64.msi' -ArgumentList '/qn /l*v C:\windows\temp\cloud-init.log LOGGINGSERIALPORTNAME=COM1 USERNAME=admin' -passthru | wait-process
 
 # verify that cloudbase-init tools exists
-if (-not(test-path -path "C:\Program Files\Cloudbase Solutions\Cloudbase-Init\LocalScripts")){                                                                                                                                              
+if (-not(test-path -path "C:\Program Files\Cloudbase Solutions\Cloudbase-Init\LocalScripts")){
 Write-output "cloudbase-init not installed exiting..."
 exit 1
-}   
+}
 
 move-item C:\Windows\Temp\cloudbase-init-unattend.conf "C:\Program Files\Cloudbase Solutions\Cloudbase-Init\conf\cloudbase-init-unattend.conf" -force
 move-item C:\Windows\Temp\cloudbase-init.conf "C:\Program Files\Cloudbase Solutions\Cloudbase-Init\conf\cloudbase-init.conf" -force

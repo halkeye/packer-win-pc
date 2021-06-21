@@ -3,8 +3,16 @@
 # get the windows kernel version
 $KERNELVERSION = [Environment]::OSVersion.Version
 
+# make sure tls 1.2 is enabled
+reg add "HKLM\SYSTEM\CurrentControlSet\Control\SecurityProviders\SCHANNEL\Protocols\TLS 1.2\Client" /v DisabledByDefault /t REG_DWORD /d 0 /f /reg:32
+reg add "HKLM\SYSTEM\CurrentControlSet\Control\SecurityProviders\SCHANNEL\Protocols\TLS 1.2\Client" /v DisabledByDefault /t REG_DWORD /d 0 /f /reg:64
+reg add "HKLM\SYSTEM\CurrentControlSet\Control\SecurityProviders\SCHANNEL\Protocols\TLS 1.2\Client" /v Enabled /t REG_DWORD /d 1 /f /reg:32
+reg add "HKLM\SYSTEM\CurrentControlSet\Control\SecurityProviders\SCHANNEL\Protocols\TLS 1.2\Client" /v Enabled /t REG_DWORD /d 1 /f /reg:64
+
 get-packageprovider -name chocolatey -ForceBootstrap
-install-package sdelete -force
+Unregister-PackageSource chocolatey
+Register-PackageSource -Name Chocolatey -ProviderName Chocolatey -Location https://chocolatey.org/api/v2/
+install-package sdelete -force -verbose
 #install-package ultradefrag -force
 
 # unzip function

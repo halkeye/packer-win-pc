@@ -30,22 +30,14 @@ if ($wu_agent -ge [Version]"7.6.7601.19161") {
   write-output "Windows Update agent out of date! $wu_agent"
 }
 
+#Install-PackageProvider -Name NuGet -Force
+#Install-Module -Name PSWindowsUpdate
+#Get-WindowsUpdate
+#Install-WindowsUpdate
+
 # Check to see if scheduled task called $scriptname exists
 if (schtasks /query /tn $scriptname 2>$null ) {
   write-output "Checking for updates...."
-  Get-WUInstallerStatus
-    # hack to get buggy windows 7 to show updates
-    #if ([Environment]::OSVersion.Version -le [Version]"6.1.7601.65536") {
-      #if ((gwmi win32_operatingsystem).OperatingSystemSKU -notmatch "(\b[7-9]|10|1[2-5]|1[7-9]|2[0-5])") { 
-        if ([Version](Get-ItemProperty 'HKLM:\SOFTWARE\Microsoft\Internet Explorer').Version -le [Version]"9.11.9600.18231") {
-          write-output "Forcing Windows to search for updates until it finds some...."
-          while (-not(Get-WindowsUpdate -notCategory "Windows 7 Language Packs")) {
-            write-output "Still looking for updates...."
-          }
-          Write-output "Win Found some updates" 
-        }
-      #}
-    #}
   # Actually install the updates starts here.. 
   if (Get-WindowsUpdate -notCategory "Windows 7 Language Packs" -NotTitle "Printer")
   {
@@ -156,5 +148,6 @@ if (schtasks /query /tn $scriptname 2>$null ) {
     # setup task scheduler login item to process this script next boot
     schtasks /create /ru "BUILTIN\administrators" /sc ONLOGON /tn $scriptname /tr "C:\Windows\System32\WindowsPowerShell\v1.0\powershell.exe -File C:\windows\temp\$scriptname" /rl highest /f /np
  }
+
 stop-transcript
 exit 0

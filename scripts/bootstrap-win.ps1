@@ -51,6 +51,8 @@ winrm set winrm/config/client/auth '@{Basic="true"}'
 winrm set winrm/config/listener?Address=*+Transport=HTTP '@{Port="5985"}'
 winrm set winrm/config/winrs '@{MaxConcurrentUsers="200"}'
 winrm set winrm/config/winrs '@{MaxShellsPerUser="200"}'
+# start winrm on startup
+sc config "WinRM" start= auto
 
 # configure powersaving and screen saver
 powercfg -setactive 8c5e7fda-e8bf-4a96-9a85-a6e23a8c635c
