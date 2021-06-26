@@ -3,33 +3,7 @@
 # get the windows kernel version
 $KERNELVERSION = [Environment]::OSVersion.Version
 
-# make sure tls 1.2 is enabled
-reg add "HKLM\SYSTEM\CurrentControlSet\Control\SecurityProviders\SCHANNEL\Protocols\TLS 1.2\Client" /v DisabledByDefault /t REG_DWORD /d 0 /f /reg:32
-reg add "HKLM\SYSTEM\CurrentControlSet\Control\SecurityProviders\SCHANNEL\Protocols\TLS 1.2\Client" /v DisabledByDefault /t REG_DWORD /d 0 /f /reg:64
-reg add "HKLM\SYSTEM\CurrentControlSet\Control\SecurityProviders\SCHANNEL\Protocols\TLS 1.2\Client" /v Enabled /t REG_DWORD /d 1 /f /reg:32
-reg add "HKLM\SYSTEM\CurrentControlSet\Control\SecurityProviders\SCHANNEL\Protocols\TLS 1.2\Client" /v Enabled /t REG_DWORD /d 1 /f /reg:64
-
-get-packageprovider -name chocolatey -ForceBootstrap
-Unregister-PackageSource chocolatey
-Register-PackageSource -Name Chocolatey -ProviderName Chocolatey -Location https://chocolatey.org/api/v2/
-install-package sdelete -force -verbose
-#install-package ultradefrag -force
-
-# unzip function
-function punzip( $zipfile, $outdir ) {
-  If(-not(Test-Path -path $zipfile)){return "zipfile " + $zipfile + " not found!"}
-  If(-not(Test-Path -path $outdir)){return "output dir " + $outdir + " not found!"}
-  $shell = new-object -com shell.application
-  $zip = $shell.NameSpace($zipfile)
-  foreach($item in $zip.items())
-    {
-      $shell.Namespace($outdir).copyhere($item)
-    }
-}
-
-## Download the FILES
-$client = new-object System.Net.WebClient
-$client.DownloadFile("http://downloads.sourceforge.net/project/ultradefrag/stable-release/7.0.1/ultradefrag-portable-7.0.1.bin.amd64.zip", "C:\windows\temp\ultradefrag-portable-7.0.1.bin.amd64.zip" )
+choco install sdelete -force
 
 # Stops the windows update service.  
 Stop-Service -Name wuauserv -Force -EA 0 
@@ -57,20 +31,12 @@ if ([Environment]::OSVersion.Version -ge [Version]"10.0") {
   dism /online /cleanup-image /startcomponentcleanup /resetbase /quiet
 }
 
-# extract ultradefrag archive
-write-output "extracting ultradefrag archive"
-punzip ("C:\windows\temp\ultradefrag-portable-7.0.1.bin.amd64.zip") ("C:\Windows\temp")
-
-# Defragment the virtual disk blocks
-write-output "Starting to Defragment Disk"
-start-process -FilePath 'C:\Windows\Temp\ultradefrag-portable-7.0.1.amd64\udefrag.exe' -ArgumentList '--optimize --repeat C:' -wait -verb RunAs
-  
 # Zero dirty blocks
 write-output "Starting to Zero blocks"
 #New-Item -Path "HKCU:\Software\Sysinternals\SDelete" -force -ErrorAction SilentlyContinue
 #Set-ItemProperty -Path "HKCU:\Software\Sysinternals\SDelete" -Name EulaAccepted -Value "1" -Type DWORD -force
-start-process -FilePath 'C:\Chocolatey\bin\sdelete64.bat' -ArgumentList '-q -z C:' -wait -EA 0
-uninstall-package sdelete -force
+start-process -FilePath 'C:\ProgramData\chocolatey\bin\sdelete.exe' -ArgumentList '-q -z C:' -wait -EA 0
+choco uninstall sdelete -force
 
 exit 0
 

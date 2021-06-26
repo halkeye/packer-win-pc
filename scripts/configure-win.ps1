@@ -10,6 +10,18 @@ if ($windesktop)
 write-output "Disable Hybernation"
 powercfg -hibernate OFF
 
+write-output "Install Chocolatey"
+Set-ExecutionPolicy Bypass -Scope Process -Force; [System.Net.ServicePointManager]::SecurityProtocol = [System.Net.ServicePointManager]::SecurityProtocol -bor 3072; iex ((New-Object System.Net.WebClient).DownloadString('https://chocolatey.org/install.ps1'))
+choco feature enable -n allowGlobalConfirmation
+
+write-output "Install Boxstarter"
+Set-ExecutionPolicy Bypass -Scope Process -Force; [System.Net.ServicePointManager]::SecurityProtocol = [System.Net.ServicePointManager]::SecurityProtocol -bor 3072; iex ((New-Object System.Net.WebClient).DownloadString('https://boxstarter.org/bootstrapper.ps1'));
+Get-Boxstarter -Force
+
+write-output "Run package script"
+Import-Module (Join-Path -Path $env:ProgramData -ChildPath 'Boxstarter\Boxstarter.Chocolatey\Boxstarter.Chocolatey.psd1')
+Install-BoxstarterPackage -PackageName a:\package.ps1 -Credential $cred
+
 write-output  "configure screen saver"
 Set-ItemProperty -Path "registry::HKEY_USERS\.DEFAULT\Control Panel\Desktop" -Name ScreenSaveActive -Value 0
 
